@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(210 25% 7.8431%);
+  --card: hsl(180 6.6667% 97.0588%);
+  --card-foreground: hsl(210 25% 7.8431%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(210 25% 7.8431%);
+  --primary: hsl(203.8863 88.2845% 53.1373%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(210 25% 7.8431%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(240 1.9608% 90%);
+  --muted-foreground: hsl(210 25% 7.8431%);
+  --accent: hsl(211.5789 51.3514% 92.7451%);
+  --accent-foreground: hsl(203.8863 88.2845% 53.1373%);
+  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(201.4286 30.4348% 90.9804%);
+  --input: hsl(200 23.0769% 97.4510%);
+  --ring: hsl(202.8169 89.1213% 53.1373%);
+  --chart-1: hsl(203.8863 88.2845% 53.1373%);
+  --chart-2: hsl(159.7826 100% 36.0784%);
+  --chart-3: hsl(42.0290 92.8251% 56.2745%);
+  --chart-4: hsl(147.1429 78.5047% 41.9608%);
+  --chart-5: hsl(341.4894 75.2000% 50.9804%);
+  --sidebar: hsl(180 6.6667% 97.0588%);
+  --sidebar-foreground: hsl(210 25% 7.8431%);
+  --sidebar-primary: hsl(203.8863 88.2845% 53.1373%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(211.5789 51.3514% 92.7451%);
+  --sidebar-accent-foreground: hsl(203.8863 88.2845% 53.1373%);
+  --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
+  --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
+  --font-sans: 'Inter', 'Open Sans', sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.5rem;
+
+  /* Gaming theme colors */
+  --discord-darker: hsl(210 11.1% 11.8%);
+  --discord-dark: hsl(210 9.8% 16.5%);
+  --discord-card: hsl(210 8.2% 21.6%);
+  --discord-accent: hsl(267 45.5% 55.1%);
+  --discord-green: hsl(139 46.7% 64.3%);
+  --discord-red: hsl(358 68.4% 59.2%);
+  --discord-text: hsl(213 5.9% 73.3%);
+  --discord-yellow: hsl(45 92.8% 56.3%);
+}
+
+.dark {
+  --background: hsl(210 11.1% 11.8%);
+  --foreground: hsl(213 5.9% 73.3%);
+  --card: hsl(210 8.2% 21.6%);
+  --card-foreground: hsl(213 5.9% 73.3%);
+  --popover: hsl(210 11.1% 11.8%);
+  --popover-foreground: hsl(213 5.9% 73.3%);
+  --primary: hsl(267 45.5% 55.1%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(210 8.2% 21.6%);
+  --secondary-foreground: hsl(213 5.9% 73.3%);
+  --muted: hsl(210 8.2% 21.6%);
+  --muted-foreground: hsl(213 5.9% 73.3%);
+  --accent: hsl(267 45.5% 55.1%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(358 68.4% 59.2%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(210 8.2% 21.6%);
+  --input: hsl(210 8.2% 21.6%);
+  --ring: hsl(267 45.5% 55.1%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', var(--font-sans);
+  }
+
+  /* Gaming theme defaults */
+  body {
+    @apply bg-discord-darker text-white;
+  }
+}
+
+@layer utilities {
+  .discord-darker {
+    background-color: var(--discord-darker);
+  }
+  
+  .discord-dark {
+    background-color: var(--discord-dark);
+  }
+  
+  .discord-card {
+    background-color: var(--discord-card);
+  }
+  
+  .discord-accent {
+    background-color: var(--discord-accent);
+  }
+  
+  .discord-green {
+    background-color: var(--discord-green);
+  }
+  
+  .discord-red {
+    background-color: var(--discord-red);
+  }
+  
+  .discord-text {
+    color: var(--discord-text);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--discord-dark);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--discord-accent);
+    border-radius: 4px;
+  }
+}
