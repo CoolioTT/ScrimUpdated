@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import { Gamepad2, Users, Layers, UserPlus, MessageCircle, Settings } from "lucide-react";
+import { Gamepad2, MessageCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function DesktopSidebar() {
@@ -7,9 +7,6 @@ export default function DesktopSidebar() {
 
   const navItems = [
     { icon: Gamepad2, label: "Scrims", href: "/scrims", active: true },
-    { icon: Users, label: "Playmates", href: "/playmates" },
-    { icon: Layers, label: "Groups", href: "/groups" },
-    { icon: UserPlus, label: "Recruit", href: "/recruit" },
     { icon: MessageCircle, label: "Chat", href: "/chat" },
   ];
 
@@ -56,7 +53,7 @@ export default function DesktopSidebar() {
         <div className="absolute bottom-4 left-4 right-4">
           <div className="flex items-center justify-between p-3 bg-discord-card rounded-md">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-discord-accent flex items-center justify-center">
                 {user?.profileImageUrl ? (
                   <img
                     src={user.profileImageUrl}

@@ -5,6 +5,9 @@ ScrimHandler is a comprehensive esports scrim finder and team management platfor
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+UI Color Scheme: White/black/blue only (no other colors)
+Navigation: Only Scrims and Chat tabs (removed other tabs)
+Features Required: Date/time selection, map filtering, MR24 game format options, multiple choice server selection
 
 # System Architecture
 

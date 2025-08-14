@@ -14,14 +14,8 @@ function Router() {
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/scrims" component={Scrims} />
-        </>
-      )}
+      <Route path="/" component={Scrims} />
+      <Route path="/scrims" component={Scrims} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -31,7 +25,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-discord-darker text-white font-inter">
+        <div className="min-h-screen bg-discord-darker text-black font-inter">
           <Toaster />
           <Router />
         </div>
