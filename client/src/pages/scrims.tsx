@@ -7,21 +7,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Calendar, Clock, MapPin, Users, MessageCircle, Gamepad2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Scrims() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedMap, setSelectedMap] = useState("");
   const [gameFormat, setGameFormat] = useState("MR24");
+  const [numberOfGames, setNumberOfGames] = useState("1");
   const [selectedServers, setSelectedServers] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("scrims");
+  const { toast } = useToast();
 
   const availableMaps = [
-    "Dust2", "Mirage", "Inferno", "Cache", "Overpass", "Vertigo", "Ancient", "Nuke"
+    "Bind", "Haven", "Split", "Ascent", "Icebox", "Breeze", "Fracture", "Pearl", "Lotus", "Sunset"
   ];
 
   const availableServers = [
-    "US East", "US West", "EU West", "EU East", "Asia Pacific", "South America"
+    "Asia Pacific (Sydney)", "Asia Pacific (Tokyo)", "Asia Pacific (Singapore)", "Asia Pacific (Hong Kong)"
   ];
 
   const handleServerToggle = (server: string) => {
@@ -32,10 +35,41 @@ export default function Scrims() {
     );
   };
 
+  const handleJoinMatch = (matchId: number) => {
+    toast({
+      title: "Joined Match",
+      description: `Successfully joined scrim match #${matchId}!`,
+      variant: "default",
+    });
+  };
+
+  const handleCreateScrim = () => {
+    if (!selectedDate || !selectedTime || !selectedMap || selectedServers.length === 0) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields to create a scrim.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    toast({
+      title: "Scrim Created",
+      description: `Created ${gameFormat} scrim for ${selectedMap} on ${selectedDate} at ${selectedTime}`,
+      variant: "default",
+    });
+
+    // Reset form
+    setSelectedDate("");
+    setSelectedTime("");
+    setSelectedMap("");
+    setSelectedServers([]);
+  };
+
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="min-h-screen bg-discord-darker text-discord-text">
       {/* Top Navigation */}
-      <div className="border-b border-gray-200 bg-white">
+      <div className="border-b border-discord-card bg-discord-dark">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             <div className="text-xl font-bold text-discord-accent">ScrimHandler</div>
@@ -47,7 +81,7 @@ export default function Scrims() {
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
                   activeTab === "scrims"
                     ? "bg-discord-accent text-white"
-                    : "text-discord-text hover:bg-gray-100"
+                    : "text-discord-text hover:bg-discord-card"
                 }`}
                 data-testid="tab-scrims"
               >
@@ -60,7 +94,7 @@ export default function Scrims() {
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
                   activeTab === "chat"
                     ? "bg-discord-accent text-white"
-                    : "text-discord-text hover:bg-gray-100"
+                    : "text-discord-text hover:bg-discord-card"
                 }`}
                 data-testid="tab-chat"
               >
@@ -72,6 +106,7 @@ export default function Scrims() {
             <Button 
               onClick={() => window.location.href = "/api/logout"}
               variant="outline"
+              className="border-discord-card text-discord-text hover:bg-discord-card"
               data-testid="button-logout"
             >
               Logout
@@ -86,10 +121,10 @@ export default function Scrims() {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Left Panel - Scrim Creation Form */}
             <div className="md:col-span-1">
-              <Card className="border-gray-200">
+              <Card className="border-discord-card bg-discord-card">
                 <CardHeader>
                   <CardTitle className="text-discord-text">Create Scrim</CardTitle>
-                  <CardDescription>Schedule a new practice match</CardDescription>
+                  <CardDescription className="text-discord-text opacity-70">Schedule a new practice match</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Date Selection */}
@@ -100,7 +135,7 @@ export default function Scrims() {
                       type="date"
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="border-gray-300"
+                      className="border-discord-dark bg-discord-darker text-discord-text"
                       data-testid="input-date"
                     />
                   </div>
@@ -113,7 +148,7 @@ export default function Scrims() {
                       type="time"
                       value={selectedTime}
                       onChange={(e) => setSelectedTime(e.target.value)}
-                      className="border-gray-300"
+                      className="border-discord-dark bg-discord-darker text-discord-text"
                       data-testid="input-time"
                     />
                   </div>
@@ -122,28 +157,43 @@ export default function Scrims() {
                   <div className="space-y-2">
                     <Label className="text-discord-text">Map</Label>
                     <Select value={selectedMap} onValueChange={setSelectedMap}>
-                      <SelectTrigger className="border-gray-300" data-testid="select-map">
+                      <SelectTrigger className="border-discord-dark bg-discord-darker text-discord-text" data-testid="select-map">
                         <SelectValue placeholder="Select a map" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-discord-card border-discord-dark">
                         {availableMaps.map((map) => (
-                          <SelectItem key={map} value={map}>{map}</SelectItem>
+                          <SelectItem key={map} value={map} className="text-discord-text hover:bg-discord-darker">{map}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {/* Game Format */}
+                  {/* Number of Games */}
                   <div className="space-y-2">
-                    <Label className="text-discord-text">Game Format</Label>
-                    <Select value={gameFormat} onValueChange={setGameFormat}>
-                      <SelectTrigger className="border-gray-300" data-testid="select-format">
+                    <Label className="text-discord-text">Number of Games</Label>
+                    <Select value={numberOfGames} onValueChange={setNumberOfGames}>
+                      <SelectTrigger className="border-discord-dark bg-discord-darker text-discord-text" data-testid="select-games">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="MR12">MR12 (12 rounds)</SelectItem>
-                        <SelectItem value="MR24">MR24 (24 rounds)</SelectItem>
-                        <SelectItem value="MR30">MR30 (30 rounds)</SelectItem>
+                      <SelectContent className="bg-discord-card border-discord-dark">
+                        <SelectItem value="1" className="text-discord-text hover:bg-discord-darker">1 Game</SelectItem>
+                        <SelectItem value="2" className="text-discord-text hover:bg-discord-darker">2 Games</SelectItem>
+                        <SelectItem value="3" className="text-discord-text hover:bg-discord-darker">3 Games</SelectItem>
+                        <SelectItem value="5" className="text-discord-text hover:bg-discord-darker">5 Games</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Match Format */}
+                  <div className="space-y-2">
+                    <Label className="text-discord-text">Match Format</Label>
+                    <Select value={gameFormat} onValueChange={setGameFormat}>
+                      <SelectTrigger className="border-discord-dark bg-discord-darker text-discord-text" data-testid="select-format">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-discord-card border-discord-dark">
+                        <SelectItem value="Regular" className="text-discord-text hover:bg-discord-darker">Regular Match</SelectItem>
+                        <SelectItem value="MR24" className="text-discord-text hover:bg-discord-darker">MR24</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -151,16 +201,17 @@ export default function Scrims() {
                   {/* Server Selection - Multiple Choice */}
                   <div className="space-y-2">
                     <Label className="text-discord-text">Preferred Servers (Select multiple)</Label>
-                    <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-300 rounded-md p-3">
+                    <div className="space-y-2 max-h-32 overflow-y-auto border border-discord-dark rounded-md p-3 bg-discord-darker">
                       {availableServers.map((server) => (
                         <div key={server} className="flex items-center space-x-2">
                           <Checkbox
                             id={server}
                             checked={selectedServers.includes(server)}
                             onCheckedChange={() => handleServerToggle(server)}
+                            className="border-discord-text"
                             data-testid={`checkbox-server-${server.replace(/\s+/g, '-').toLowerCase()}`}
                           />
-                          <Label htmlFor={server} className="text-sm cursor-pointer">
+                          <Label htmlFor={server} className="text-sm cursor-pointer text-discord-text">
                             {server}
                           </Label>
                         </div>
@@ -169,6 +220,7 @@ export default function Scrims() {
                   </div>
 
                   <Button 
+                    onClick={handleCreateScrim}
                     className="w-full bg-discord-accent hover:bg-blue-600" 
                     data-testid="button-create-scrim"
                   >
@@ -183,7 +235,7 @@ export default function Scrims() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h2 className="text-2xl font-bold text-discord-text">Available Scrims</h2>
-                  <Badge variant="secondary" className="bg-discord-card">
+                  <Badge variant="secondary" className="bg-discord-card text-discord-text">
                     12 matches found
                   </Badge>
                 </div>
@@ -191,7 +243,7 @@ export default function Scrims() {
                 <div className="space-y-4">
                   {/* Sample Scrim Cards */}
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <Card key={i} className="border-gray-200 hover:border-discord-accent transition-colors">
+                    <Card key={i} className="border-discord-card bg-discord-card hover:border-discord-accent transition-colors">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
                           <div className="space-y-2">
@@ -200,14 +252,14 @@ export default function Scrims() {
                               <Badge 
                                 variant="secondary" 
                                 className={`${
-                                  i % 2 === 0 ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
+                                  i % 2 === 0 ? "bg-discord-green/20 text-discord-green" : "bg-discord-accent/20 text-discord-accent"
                                 }`}
                               >
-                                {i % 2 === 0 ? "MR24" : "MR12"}
+                                {i % 2 === 0 ? "MR24" : "Regular"}
                               </Badge>
                             </div>
                             
-                            <div className="flex items-center space-x-4 text-sm text-discord-text">
+                            <div className="flex items-center space-x-4 text-sm text-discord-text opacity-70">
                               <div className="flex items-center space-x-1">
                                 <Calendar className="w-4 h-4" />
                                 <span>Today, {14 + i}:00</span>
@@ -218,12 +270,13 @@ export default function Scrims() {
                               </div>
                               <div className="flex items-center space-x-1">
                                 <Users className="w-4 h-4" />
-                                <span>US East, EU West</span>
+                                <span>Asia Pacific (Tokyo)</span>
                               </div>
                             </div>
                           </div>
                           
                           <Button 
+                            onClick={() => handleJoinMatch(i)}
                             size="sm" 
                             className="bg-discord-accent hover:bg-blue-600"
                             data-testid={`button-join-scrim-${i}`}
@@ -242,13 +295,13 @@ export default function Scrims() {
 
         {activeTab === "chat" && (
           <div className="max-w-4xl mx-auto">
-            <Card className="border-gray-200">
+            <Card className="border-discord-card bg-discord-card">
               <CardHeader>
                 <CardTitle className="text-discord-text">Chat</CardTitle>
-                <CardDescription>Connect with other players and teams</CardDescription>
+                <CardDescription className="text-discord-text opacity-70">Connect with other players and teams</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-96 border border-gray-300 rounded-md p-4 bg-gray-50">
+                <div className="h-96 border border-discord-dark rounded-md p-4 bg-discord-darker">
                   <div className="text-center text-discord-text mt-32">
                     Chat functionality coming soon...
                   </div>
@@ -256,7 +309,7 @@ export default function Scrims() {
                 <div className="mt-4 flex space-x-2">
                   <Input 
                     placeholder="Type a message..." 
-                    className="flex-1 border-gray-300"
+                    className="flex-1 border-discord-dark bg-discord-darker text-discord-text"
                     data-testid="input-chat"
                   />
                   <Button 

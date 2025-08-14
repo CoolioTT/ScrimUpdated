@@ -42,14 +42,14 @@
   --font-mono: Menlo, monospace;
   --radius: 0.5rem;
 
-  /* Gaming theme colors - White/Black/Blue scheme */
-  --discord-darker: hsl(0 0% 100%);  /* White background */
-  --discord-dark: hsl(220 15% 25%);   /* Dark blue-gray header */
-  --discord-card: hsl(0 0% 98%);      /* Light gray cards */
-  --discord-accent: hsl(220 100% 50%); /* Pure blue accent */
-  --discord-green: hsl(120 60% 45%);   /* Green for positive */
-  --discord-red: hsl(0 70% 55%);       /* Red for negative */
-  --discord-text: hsl(220 15% 35%);    /* Dark gray text */
+  /* Gaming theme colors - Dark theme with blue accents */
+  --discord-darker: hsl(210 11.1% 11.8%);  /* Dark background */
+  --discord-dark: hsl(210 9.8% 16.5%);     /* Header dark */
+  --discord-card: hsl(210 8.2% 21.6%);     /* Card background */
+  --discord-accent: hsl(220 100% 50%);     /* Blue accent */
+  --discord-green: hsl(120 60% 45%);       /* Green for positive */
+  --discord-red: hsl(0 70% 55%);           /* Red for negative */
+  --discord-text: hsl(213 5.9% 73.3%);     /* Light gray text */
   --discord-yellow: hsl(45 92.8% 56.3%);
 }
 
@@ -87,7 +87,7 @@
 
   /* Gaming theme defaults */
   body {
-    @apply bg-discord-darker text-black;
+    @apply bg-discord-darker text-discord-text;
   }
 }
 
