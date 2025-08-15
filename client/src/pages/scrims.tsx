@@ -6,17 +6,22 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Calendar, Clock, MapPin, Users, MessageCircle, Gamepad2 } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, MessageCircle, Gamepad2, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Scrims() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
-  const [selectedMap, setSelectedMap] = useState("");
+  const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [gameFormat, setGameFormat] = useState("MR24");
   const [numberOfGames, setNumberOfGames] = useState("1");
   const [selectedServers, setSelectedServers] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("scrims");
+  const [showJoinModal, setShowJoinModal] = useState<number | null>(null);
+  const [joinMessage, setJoinMessage] = useState("");
+  const [selectedMapsForJoin, setSelectedMapsForJoin] = useState<string[]>([]);
   const { toast } = useToast();
 
   const availableMaps = [
@@ -35,16 +40,61 @@ export default function Scrims() {
     );
   };
 
-  const handleJoinMatch = (matchId: number) => {
+  const handleMapToggle = (map: string) => {
+    setSelectedMaps(prev => 
+      prev.includes(map) 
+        ? prev.filter(m => m !== map)
+        : [...prev, map]
+    );
+  };
+
+  const handleJoinRequest = (matchId: number) => {
+    setShowJoinModal(matchId);
+    // Get available maps for this scrim
+    const scrimMaps = availableMaps.slice(0, 2 + (matchId % 3));
+    setSelectedMapsForJoin([]); // Reset selection
+  };
+
+  const handleJoinMapToggle = (map: string) => {
+    setSelectedMapsForJoin(prev => 
+      prev.includes(map) 
+        ? prev.filter(m => m !== map)
+        : [...prev, map]
+    );
+  };
+
+  const submitJoinRequest = () => {
+    if (!joinMessage.trim()) {
+      toast({
+        title: "Message Required",
+        description: "Please add a message with your join request.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedMapsForJoin.length === 0) {
+      toast({
+        title: "Map Selection Required",
+        description: "Please select at least one map you'd like to play.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
-      title: "Joined Match",
-      description: `Successfully joined scrim match #${matchId}!`,
+      title: "Join Request Sent",
+      description: `Your request to join scrim #${showJoinModal} has been sent. Maps: ${selectedMapsForJoin.join(", ")}`,
       variant: "default",
     });
+
+    setShowJoinModal(null);
+    setJoinMessage("");
+    setSelectedMapsForJoin([]);
   };
 
   const handleCreateScrim = () => {
-    if (!selectedDate || !selectedTime || !selectedMap || selectedServers.length === 0) {
+    if (!selectedDate || !selectedTime || selectedMaps.length === 0 || selectedServers.length === 0) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields to create a scrim.",
@@ -55,14 +105,14 @@ export default function Scrims() {
     
     toast({
       title: "Scrim Created",
-      description: `Created ${gameFormat} scrim for ${selectedMap} on ${selectedDate} at ${selectedTime}`,
+      description: `Created ${gameFormat} scrim for ${selectedMaps.join(", ")} on ${selectedDate} at ${selectedTime}`,
       variant: "default",
     });
 
     // Reset form
     setSelectedDate("");
     setSelectedTime("");
-    setSelectedMap("");
+    setSelectedMaps([]);
     setSelectedServers([]);
   };
 
@@ -153,19 +203,25 @@ export default function Scrims() {
                     />
                   </div>
 
-                  {/* Map Selection */}
+                  {/* Map Selection - Multiple Choice */}
                   <div className="space-y-2">
-                    <Label className="text-discord-text">Map</Label>
-                    <Select value={selectedMap} onValueChange={setSelectedMap}>
-                      <SelectTrigger className="border-discord-dark bg-discord-darker text-discord-text" data-testid="select-map">
-                        <SelectValue placeholder="Select a map" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-discord-card border-discord-dark">
-                        {availableMaps.map((map) => (
-                          <SelectItem key={map} value={map} className="text-discord-text hover:bg-discord-darker">{map}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label className="text-discord-text">Maps (Select multiple)</Label>
+                    <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border border-discord-dark rounded-md p-3 bg-discord-darker">
+                      {availableMaps.map((map) => (
+                        <div key={map} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={map}
+                            checked={selectedMaps.includes(map)}
+                            onCheckedChange={() => handleMapToggle(map)}
+                            className="border-discord-text"
+                            data-testid={`checkbox-map-${map.toLowerCase()}`}
+                          />
+                          <Label htmlFor={map} className="text-sm cursor-pointer text-discord-text">
+                            {map}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Number of Games */}
@@ -242,51 +298,66 @@ export default function Scrims() {
 
                 <div className="space-y-4">
                   {/* Sample Scrim Cards */}
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Card key={i} className="border-discord-card bg-discord-card hover:border-discord-accent transition-colors">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-4">
-                              <h3 className="font-semibold text-discord-text">Team Alpha vs Looking for Scrim</h3>
-                              <Badge 
-                                variant="secondary" 
-                                className={`${
-                                  i % 2 === 0 ? "bg-discord-green/20 text-discord-green" : "bg-discord-accent/20 text-discord-accent"
-                                }`}
-                              >
-                                {i % 2 === 0 ? "MR24" : "Regular"}
-                              </Badge>
+                  {[1, 2, 3, 4, 5].map((i) => {
+                    const scrimMaps = availableMaps.slice(0, 2 + (i % 3)); // Show 2-4 maps per scrim
+                    return (
+                      <Card key={i} className="border-discord-card bg-discord-card hover:border-discord-accent transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-3">
+                              <div className="flex items-center space-x-4">
+                                <h3 className="font-semibold text-discord-text">Team Alpha vs Looking for Scrim</h3>
+                                <Badge 
+                                  variant="secondary" 
+                                  className={`${
+                                    i % 2 === 0 ? "bg-discord-green/20 text-discord-green" : "bg-discord-accent/20 text-discord-accent"
+                                  }`}
+                                >
+                                  {i % 2 === 0 ? "MR24" : "Regular"}
+                                </Badge>
+                              </div>
+                              
+                              <div className="flex items-center space-x-4 text-sm text-discord-text opacity-70">
+                                <div className="flex items-center space-x-1">
+                                  <Calendar className="w-4 h-4" />
+                                  <span>Today, {14 + i}:00</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Users className="w-4 h-4" />
+                                  <span>Asia Pacific (Tokyo)</span>
+                                </div>
+                              </div>
+
+                              {/* Available Maps */}
+                              <div className="space-y-1">
+                                <div className="text-xs text-discord-text opacity-50">Available Maps:</div>
+                                <div className="flex flex-wrap gap-1">
+                                  {scrimMaps.map((map) => (
+                                    <Badge 
+                                      key={map} 
+                                      variant="outline" 
+                                      className="text-xs border-discord-accent/30 text-discord-accent"
+                                    >
+                                      {map}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
                             </div>
                             
-                            <div className="flex items-center space-x-4 text-sm text-discord-text opacity-70">
-                              <div className="flex items-center space-x-1">
-                                <Calendar className="w-4 h-4" />
-                                <span>Today, {14 + i}:00</span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <MapPin className="w-4 h-4" />
-                                <span>{availableMaps[i % availableMaps.length]}</span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <Users className="w-4 h-4" />
-                                <span>Asia Pacific (Tokyo)</span>
-                              </div>
-                            </div>
+                            <Button 
+                              onClick={() => handleJoinRequest(i)}
+                              size="sm" 
+                              className="bg-discord-accent hover:bg-blue-600"
+                              data-testid={`button-request-join-${i}`}
+                            >
+                              Request to Join
+                            </Button>
                           </div>
-                          
-                          <Button 
-                            onClick={() => handleJoinMatch(i)}
-                            size="sm" 
-                            className="bg-discord-accent hover:bg-blue-600"
-                            data-testid={`button-join-scrim-${i}`}
-                          >
-                            Join Match
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -324,6 +395,74 @@ export default function Scrims() {
           </div>
         )}
       </div>
+
+      {/* Join Request Modal */}
+      {showJoinModal && (
+        <Dialog open={!!showJoinModal} onOpenChange={() => setShowJoinModal(null)}>
+          <DialogContent className="bg-discord-card border-discord-dark text-discord-text max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-discord-text">Request to Join Scrim #{showJoinModal}</DialogTitle>
+              <DialogDescription className="text-discord-text opacity-70">
+                Select the maps you'd like to play and send a message to the team owner.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* Available Maps Selection */}
+              <div className="space-y-2">
+                <Label className="text-discord-text">Select Maps You Want to Play</Label>
+                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto border border-discord-dark rounded-md p-3 bg-discord-darker">
+                  {availableMaps.slice(0, 2 + (showJoinModal % 3)).map((map) => (
+                    <div key={map} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`join-${map}`}
+                        checked={selectedMapsForJoin.includes(map)}
+                        onCheckedChange={() => handleJoinMapToggle(map)}
+                        className="border-discord-text"
+                        data-testid={`checkbox-join-map-${map.toLowerCase()}`}
+                      />
+                      <Label htmlFor={`join-${map}`} className="text-sm cursor-pointer text-discord-text">
+                        {map}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="space-y-2">
+                <Label htmlFor="join-message" className="text-discord-text">Message to Team Owner</Label>
+                <Textarea
+                  id="join-message"
+                  value={joinMessage}
+                  onChange={(e) => setJoinMessage(e.target.value)}
+                  placeholder="Hi! I'd like to join your scrim. We're a competitive team looking for good practice..."
+                  className="border-discord-dark bg-discord-darker text-discord-text min-h-[100px]"
+                  data-testid="textarea-join-message"
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowJoinModal(null)}
+                className="border-discord-card text-discord-text hover:bg-discord-card"
+                data-testid="button-cancel-join"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={submitJoinRequest}
+                className="bg-discord-accent hover:bg-blue-600"
+                data-testid="button-send-request"
+              >
+                Send Request
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
