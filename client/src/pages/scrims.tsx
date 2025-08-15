@@ -22,6 +22,17 @@ export default function Scrims() {
   const [showJoinModal, setShowJoinModal] = useState<number | null>(null);
   const [joinMessage, setJoinMessage] = useState("");
   const [selectedMapsForJoin, setSelectedMapsForJoin] = useState<string[]>([]);
+  const [filterServer, setFilterServer] = useState("");
+  const [filterTime, setFilterTime] = useState("");
+  const [filterMap, setFilterMap] = useState("");
+  const [filterFormat, setFilterFormat] = useState("");
+  const [chatMessage, setChatMessage] = useState("");
+  const [messages, setMessages] = useState([
+    { id: 1, user: "TeamAlpha", message: "Looking for scrim partners for tonight!", time: "10:30", isOwn: false },
+    { id: 2, user: "ProGamer", message: "We're available for MR24 matches", time: "10:32", isOwn: false },
+    { id: 3, user: "You", message: "Hey everyone! New to the platform", time: "10:35", isOwn: true },
+    { id: 4, user: "ValorantPro", message: "Welcome! Feel free to ask questions", time: "10:36", isOwn: false },
+  ]);
   const { toast } = useToast();
 
   const availableMaps = [
@@ -91,6 +102,27 @@ export default function Scrims() {
     setShowJoinModal(null);
     setJoinMessage("");
     setSelectedMapsForJoin([]);
+  };
+
+  const sendChatMessage = () => {
+    if (!chatMessage.trim()) return;
+    
+    const newMessage = {
+      id: messages.length + 1,
+      user: "You",
+      message: chatMessage.trim(),
+      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      isOwn: true
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+    setChatMessage("");
+    
+    toast({
+      title: "Message Sent",
+      description: "Your message has been sent to the chat.",
+      variant: "default",
+    });
   };
 
   const handleCreateScrim = () => {
@@ -168,7 +200,74 @@ export default function Scrims() {
       {/* Content Area */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === "scrims" && (
-          <div className="grid md:grid-cols-3 gap-8">
+          <>
+            {/* Search Filters */}
+            <div className="mb-6">
+              <Card className="border-discord-card bg-discord-card">
+                <CardHeader>
+                  <CardTitle className="text-discord-text">Search Filters</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-discord-text">Server</Label>
+                      <Select value={filterServer} onValueChange={setFilterServer}>
+                        <SelectTrigger className="border-discord-dark bg-discord-darker text-discord-text">
+                          <SelectValue placeholder="Any server" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-discord-card border-discord-dark">
+                          <SelectItem value="" className="text-discord-text">Any server</SelectItem>
+                          {availableServers.map((server) => (
+                            <SelectItem key={server} value={server} className="text-discord-text">{server}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-discord-text">Time</Label>
+                      <Input
+                        type="time"
+                        value={filterTime}
+                        onChange={(e) => setFilterTime(e.target.value)}
+                        className="border-discord-dark bg-discord-darker text-discord-text"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-discord-text">Map</Label>
+                      <Select value={filterMap} onValueChange={setFilterMap}>
+                        <SelectTrigger className="border-discord-dark bg-discord-darker text-discord-text">
+                          <SelectValue placeholder="Any map" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-discord-card border-discord-dark">
+                          <SelectItem value="" className="text-discord-text">Any map</SelectItem>
+                          {availableMaps.map((map) => (
+                            <SelectItem key={map} value={map} className="text-discord-text">{map}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-discord-text">Format</Label>
+                      <Select value={filterFormat} onValueChange={setFilterFormat}>
+                        <SelectTrigger className="border-discord-dark bg-discord-darker text-discord-text">
+                          <SelectValue placeholder="Any format" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-discord-card border-discord-dark">
+                          <SelectItem value="" className="text-discord-text">Any format</SelectItem>
+                          <SelectItem value="Regular" className="text-discord-text">Regular</SelectItem>
+                          <SelectItem value="MR24" className="text-discord-text">MR24</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
             {/* Left Panel - Scrim Creation Form */}
             <div className="md:col-span-1">
               <Card className="border-discord-card bg-discord-card">
@@ -392,7 +491,8 @@ export default function Scrims() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+            </div>
+          </>
         )}
       </div>
 
@@ -403,7 +503,7 @@ export default function Scrims() {
             <DialogHeader>
               <DialogTitle className="text-discord-text">Request to Join Scrim #{showJoinModal}</DialogTitle>
               <DialogDescription className="text-discord-text opacity-70">
-                Select the maps you'd like to play and send a message to the team owner.
+                Scheduled for Today at {14 + showJoinModal}:00. Select maps and send a message.
               </DialogDescription>
             </DialogHeader>
             
